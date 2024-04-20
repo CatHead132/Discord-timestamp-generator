@@ -1,56 +1,75 @@
-import tkinter as tk
+import customtkinter as ct
 from datetime import datetime
-from discord_timestamps import format_timestamp, TimestampType
 import clipboard
 
 
-def get_future_timestamp(current_timestamp, offset_type, offset_value):
-  if offset_type.lower() not in ("m", "h"):
-    raise ValueError("Invalid offset type. Please enter 'm' for minutes or 'h' for hours.")
+def button_callback(entry):
+    selected_unit = radiobutton_var.get()
+    entry_text = entry.get()
+    entry.delete(0, "end")
 
-  offset_in_seconds = offset_value * (60 if offset_type.lower() == "m" else 3600)
-  future_timestamp = current_timestamp + offset_in_seconds
-  return future_timestamp
+    if not entry_text:
+        print("Please enter a value in the entry")
+        return
 
+    try:
+        value = int(entry_text)
+    except ValueError:
+        print("Invalid input. Please enter a positive number.")
+        return
 
-def calculate_timestamp():
-  try:
-    offset_type = offset_entry.get().lower()
-    offset_value = int(offset_value_entry.get())
-    if offset_value < 0:
-      result_label.config(text="Offset value must be positive.")
-      return
+    offset_in_seconds = 0
+    if selected_unit == 0:
+        offset_in_seconds = value * 86400
+    elif selected_unit == 1:
+        offset_in_seconds = value * 3600
+    elif selected_unit == 2:
+        offset_in_seconds = value * 60
+    elif selected_unit == 3:
+        offset_in_seconds = value
+    else:
+        print("Invalid unit selection")
+        return
 
     current_timestamp = int(datetime.now().timestamp())
-    future_timestamp = get_future_timestamp(current_timestamp, offset_type, offset_value)
-    formatted_timestamp = format_timestamp(future_timestamp, TimestampType.RELATIVE)
-    result_label.config(text=f"Discord Timestamp: {formatted_timestamp}")
+    future_timestamp = current_timestamp + offset_in_seconds
 
-    clipboard.copy(formatted_timestamp)
+    timestamp = f"<t:{future_timestamp}:R>"
 
-  except ValueError:
-    result_label.config(text="Invalid input. Please try again.")
+    clipboard.copy(timestamp)
+
+    print(f"Generated Discord timestamp (relative) and copied to clipboard: {timestamp}")
 
 
-root = tk.Tk()
-root.title("Discord Timestamp Generator")
+# Create the main window
+app = ct.CTk()
+app.title("CatHead's Timestamp Generator")
+app.geometry("300x200")
+app.grid_columnconfigure((0), weight=1)
 
-offset_type_label = tk.Label(root, text="Offset Type (m or h):")
-offset_type_label.pack()
+# Create variable to store radio button selection
+radiobutton_var = ct.IntVar()
 
-offset_entry = tk.Entry(root)
-offset_entry.pack()
+# Create radio buttons
+radiobutton_1 = ct.CTkRadioButton(app, text="Days", variable=radiobutton_var, value=0)
+radiobutton_1.grid(row=0, column=0, padx=20, pady=(0, 5), sticky="w")
 
-offset_value_label = tk.Label(root, text="Offset Value:")
-offset_value_label.pack()
+radiobutton_2 = ct.CTkRadioButton(app, text="Hours", variable=radiobutton_var, value=1)
+radiobutton_2.grid(row=1, column=0, padx=20, pady=(0, 5), sticky="w")
 
-offset_value_entry = tk.Entry(root)
-offset_value_entry.pack()
+radiobutton_3 = ct.CTkRadioButton(app, text="Minutes", variable=radiobutton_var, value=2)
+radiobutton_3.grid(row=2, column=0, padx=20, pady=(0, 5), sticky="w")
 
-calculate_button = tk.Button(root, text="Copy Timestamp", command=calculate_timestamp)
-calculate_button.pack()
+radiobutton_4 = ct.CTkRadioButton(app, text="Seconds", variable=radiobutton_var, value=3)
+radiobutton_4.grid(row=3, column=0, padx=20, pady=(0, 5), sticky="w")
 
-result_label = tk.Label(root, text="")
-result_label.pack()
+# Create the entry widget
+entry = ct.CTkEntry(app, placeholder_text="Enter a value")
+entry.grid(row=4, column=0, padx=15, pady=5, sticky="ew", columnspan=2)
 
-root.mainloop()
+# Generate button
+button = ct.CTkButton(app, text="Generate", command=lambda: button_callback(entry))
+button.grid(row=5, column=0, padx=20, pady=5, sticky="ew", columnspan=2)
+
+# Start the GUI loop
+app.mainloop()
