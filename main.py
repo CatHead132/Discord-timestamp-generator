@@ -1,6 +1,7 @@
 import customtkinter as ct
 from datetime import datetime
 import clipboard
+import random
 
 
 def button_callback(entry):
@@ -25,8 +26,6 @@ def button_callback(entry):
         offset_in_seconds = value * 3600
     elif selected_unit == 2:
         offset_in_seconds = value * 60
-    elif selected_unit == 3:
-        offset_in_seconds = value
     else:
         print("Invalid unit selection")
         return
@@ -41,35 +40,64 @@ def button_callback(entry):
     print(f"Generated Discord timestamp (relative) and copied to clipboard: {timestamp}")
 
 
+def rng_event():
+  max = entry2.get()
+  min = entry3.get()
+  entry2.delete(0, "end")
+  entry3.delete(0, "end")
+
+  if min == "":
+    min = 0
+
+  random_number = random.randint(int(min), int(max))
+  label.configure(text=random_number)
+
+  return
+
+
 # Create the main window
 app = ct.CTk()
 app.title("CatHead's Timestamp Generator")
-app.geometry("300x200")
+app.geometry("400x225")
 app.grid_columnconfigure((0), weight=1)
 
-# Create variable to store radio button selection
 radiobutton_var = ct.IntVar()
 
-# Create radio buttons
-radiobutton_1 = ct.CTkRadioButton(app, text="Days", variable=radiobutton_var, value=0)
-radiobutton_1.grid(row=0, column=0, padx=20, pady=(0, 5), sticky="w")
+app.frame = ct.CTkFrame(app)
+app.frame.grid(row=0, column=0, padx=10, pady=(10, 0), sticky="nsw")
 
-radiobutton_2 = ct.CTkRadioButton(app, text="Hours", variable=radiobutton_var, value=1)
-radiobutton_2.grid(row=1, column=0, padx=20, pady=(0, 5), sticky="w")
+app.title1 = ct.CTkLabel(app.frame, text="TimeStamp", fg_color="gray30", corner_radius=6)
+app.title1.grid(row=0, column=0, padx=10, pady=(10, 0), sticky="ew", columnspan=2)
 
-radiobutton_3 = ct.CTkRadioButton(app, text="Minutes", variable=radiobutton_var, value=2)
-radiobutton_3.grid(row=2, column=0, padx=20, pady=(0, 5), sticky="w")
+radiobutton_1 = ct.CTkRadioButton(app.frame, text="Days", variable=radiobutton_var, value=0)
 
-radiobutton_4 = ct.CTkRadioButton(app, text="Seconds", variable=radiobutton_var, value=3)
-radiobutton_4.grid(row=3, column=0, padx=20, pady=(0, 5), sticky="w")
+radiobutton_1.grid(row=1, column=0, padx=20, pady=(5, 5), sticky="w")
 
-# Create the entry widget
-entry = ct.CTkEntry(app, placeholder_text="Enter a value")
+radiobutton_2 = ct.CTkRadioButton(app.frame, text="Hours", variable=radiobutton_var, value=1)
+radiobutton_2.grid(row=2, column=0, padx=20, pady=(0, 5), sticky="w")
+
+radiobutton_3 = ct.CTkRadioButton(app.frame, text="Minutes", variable=radiobutton_var, value=2)
+radiobutton_3.grid(row=3, column=0, padx=20, pady=(0, 5), sticky="w")
+
+
+entry = ct.CTkEntry(app.frame, placeholder_text="Enter a value")
 entry.grid(row=4, column=0, padx=15, pady=5, sticky="ew", columnspan=2)
 
-# Generate button
-button = ct.CTkButton(app, text="Generate", command=lambda: button_callback(entry))
+button = ct.CTkButton(app.frame, text="Copy", command=lambda: button_callback(entry))
 button.grid(row=5, column=0, padx=20, pady=5, sticky="ew", columnspan=2)
 
-# Start the GUI loop
+app.frame2 = ct.CTkFrame(app)
+app.frame2.grid(row=0, column=2, padx=10, pady=(10, 0), sticky="nsw")
+app.title2 = ct.CTkLabel(app.frame2, text="RNG", fg_color="gray30", corner_radius=6)
+app.title2.grid(row=0, column=0, padx=10, pady=(10, 0), sticky="ew", columnspan=2)
+entry2 = ct.CTkEntry(app.frame2, placeholder_text="Max")
+entry2.grid(row=1, column=0, padx=15, pady=5, sticky="ew", columnspan=2)
+entry3 = ct.CTkEntry(app.frame2, placeholder_text="Min")
+entry3.grid(row=2, column=0, padx=15, pady=5, sticky="ew", columnspan=2)
+button2 = ct.CTkButton(app.frame2, text="Generate", command=rng_event)
+button2.grid(row=3, column=0, padx=15, pady=5, sticky="ew", columnspan=2)
+label = ct.CTkLabel(app.frame2, text="Result", fg_color="transparent")
+label.grid(row=4, column=0, padx=15, pady=5, sticky="ew", columnspan=2)
+
+
 app.mainloop()
